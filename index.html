@@ -3,13 +3,17 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Frank Body — KAA Status</title>
+<title>Frank Body — KAA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+  window.__supaCreate = createClient;
+</script>
 <style>
   :root {
     --fb-cream:   #F5EDE4;
@@ -18,87 +22,136 @@
     --fb-copper:  #B5694F;
     --fb-coffee:  #4A2C20;
     --fb-ink:     #1E1410;
-    --fb-leaf:    #6B7F5E;
     --fb-sand:    #E8D9C8;
   }
-  body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background: var(--fb-cream);
-    color: var(--fb-ink);
-  }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--fb-cream); color: var(--fb-ink); }
   .display-font { font-family: 'Playfair Display', Georgia, serif; }
-  .card {
-    background: white;
-    border: 1px solid var(--fb-sand);
-    border-radius: 14px;
-    box-shadow: 0 1px 0 rgba(74,44,32,0.04), 0 8px 24px -16px rgba(74,44,32,0.18);
-  }
-  .pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 3px 10px; border-radius: 999px;
-    font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
-    text-transform: uppercase;
-  }
-  .pill-pending  { background: #FFF1D6; color: #8A5A00; }
-  .pill-review   { background: #E2EAF5; color: #2C4A78; }
-  .pill-approved { background: #E2F0DC; color: #355A26; }
-  .pill-submitted{ background: #EAE3F5; color: #4B3478; }
-  .pill-rejected { background: #F8DDD6; color: #862F1E; }
-  .pill-oos      { background: #ECECEC; color: #555;   }
+  .card { background: white; border: 1px solid var(--fb-sand); border-radius: 14px;
+          box-shadow: 0 1px 0 rgba(74,44,32,0.04), 0 8px 24px -16px rgba(74,44,32,0.18); }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
+          font-size: 11px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; }
+  .pill-requested  { background: #FBE7CC; color: #6A4400; }
+  .pill-generating { background: #E8F0FF; color: #2F4E8C; }
+  .pill-pending    { background: #FFF1D6; color: #8A5A00; }
+  .pill-review     { background: #E2EAF5; color: #2C4A78; }
+  .pill-approved   { background: #E2F0DC; color: #355A26; }
+  .pill-submitted  { background: #EAE3F5; color: #4B3478; }
+  .pill-rejected   { background: #F8DDD6; color: #862F1E; }
+  .pill-oos        { background: #ECECEC; color: #555; }
   .kpi-num { font-family: 'Playfair Display', serif; font-size: 44px; line-height: 1; color: var(--fb-coffee); font-weight: 700; }
   .copper-accent { color: var(--fb-copper); }
   .table-row:hover { background: #FBF5EE; }
   .scroll-x { overflow-x: auto; }
-  .empty-state {
-    border: 1px dashed var(--fb-rose);
-    border-radius: 14px;
-    color: var(--fb-coffee);
+  .empty-state { border: 1px dashed var(--fb-rose); border-radius: 14px; color: var(--fb-coffee); }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+  .btn-primary {
+    background: var(--fb-coffee); color: white; padding: 10px 20px; border-radius: 999px;
+    font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+    transition: background 0.15s;
   }
-  details > summary { list-style: none; cursor: pointer; }
-  details > summary::-webkit-details-marker { display: none; }
-  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; }
+  .btn-primary:hover { background: var(--fb-ink); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-secondary {
+    background: white; color: var(--fb-coffee); padding: 8px 18px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; border: 1px solid var(--fb-sand);
+  }
+  .btn-secondary:hover { background: var(--fb-cream); }
+  .btn-ghost {
+    color: var(--fb-coffee); padding: 6px 12px; font-size: 12px; font-weight: 500;
+    border-radius: 8px;
+  }
+  .btn-ghost:hover { background: var(--fb-cream); }
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(30,20,16,0.45); z-index: 50;
+    display: flex; align-items: flex-start; justify-content: center; padding-top: 5vh;
+    overflow-y: auto;
+  }
+  .modal {
+    background: white; border-radius: 18px; max-width: 720px; width: 92%;
+    padding: 32px; box-shadow: 0 24px 60px rgba(30,20,16,0.3);
+    margin-bottom: 5vh;
+  }
+  .modal-lg { max-width: 920px; }
+  .form-input {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--fb-sand); border-radius: 10px;
+    background: white; font-size: 14px;
+  }
+  .form-input:focus { outline: none; border-color: var(--fb-coffee); }
+  .form-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+                color: var(--fb-coffee); margin-bottom: 6px; display: block; }
+  .md-body h1 { font-family: 'Playfair Display', serif; font-size: 26px; margin: 8px 0 16px; }
+  .md-body h2 { font-family: 'Playfair Display', serif; font-size: 18px; margin: 24px 0 10px;
+                color: var(--fb-coffee); border-bottom: 1px solid var(--fb-sand); padding-bottom: 6px; }
+  .md-body h3 { font-size: 15px; font-weight: 600; margin: 18px 0 8px; }
+  .md-body p, .md-body li { font-size: 14px; line-height: 1.6; }
+  .md-body ul, .md-body ol { padding-left: 22px; margin: 8px 0; }
+  .md-body li { margin: 4px 0; }
+  .md-body table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  .md-body th, .md-body td { border: 1px solid var(--fb-sand); padding: 8px 12px; text-align: left; }
+  .md-body th { background: var(--fb-cream); font-weight: 600; }
+  .md-body code { background: var(--fb-cream); padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+  .md-body strong { font-weight: 600; }
 </style>
 </head>
 <body class="min-h-screen">
 
-<!-- ────────────────────── CONFIG ────────────────────── -->
+<!-- ─────────────────── CONFIG ─────────────────── -->
 <script>
-  // PASTE YOUR PUBLISHED-TO-WEB CSV URL BELOW.
-  // See setup guide: in Google Sheets → File → Share → Publish to web → choose tab `nlf_drafts`, format CSV → copy URL.
-  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSCZtQ5GJnDY0htUVcJuytSHuE2dl7bk5EPF4A0rXt1UmshjfDp63-oUY8n1AOeITsdtMfHmRpgzLOn/pub?output=csv";
-  const REFRESH_SECONDS = 60;
+  const SUPABASE_URL = "https://ububaqraqkjyaujfpyzu.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_oHacoy9ZebHw2muuWb7bzw_hFBjEPSI";
 </script>
 
-<!-- ────────────────────── HEADER ────────────────────── -->
-<header class="border-b border-stone-200 bg-white">
+<!-- ─────────────────── LOGIN SCREEN ─────────────────── -->
+<div id="loginScreen" class="min-h-screen flex items-center justify-center px-6 hidden">
+  <div class="card p-10 max-w-md w-full">
+    <div class="text-xs uppercase tracking-widest copper-accent font-semibold mb-2">Frank Body</div>
+    <h1 class="display-font text-3xl mb-2">Key Accounts</h1>
+    <p class="text-sm text-stone-600 mb-8">Sign in to manage NLF drafts and status.</p>
+    <form id="loginForm" class="space-y-5">
+      <div>
+        <label class="form-label">Email</label>
+        <input id="loginEmail" type="email" class="form-input" required autocomplete="email" />
+      </div>
+      <div>
+        <label class="form-label">Password</label>
+        <input id="loginPassword" type="password" class="form-input" required autocomplete="current-password" />
+      </div>
+      <div id="loginError" class="hidden text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3"></div>
+      <button type="submit" class="btn-primary w-full">Sign in</button>
+    </form>
+    <div class="text-xs text-stone-500 mt-6">Need access? Ask Didac to add you in Supabase Auth.</div>
+  </div>
+</div>
+
+<!-- ─────────────────── HEADER ─────────────────── -->
+<header id="appHeader" class="border-b border-stone-200 bg-white hidden">
   <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
     <div>
       <div class="text-xs uppercase tracking-widest copper-accent font-semibold mb-1">Frank Body</div>
-      <h1 class="display-font text-3xl">Key Accounts — Status</h1>
+      <h1 class="display-font text-3xl">Key Accounts</h1>
     </div>
     <div class="flex items-center gap-4 text-sm">
       <div class="text-stone-500">
         <span class="dot bg-green-500" id="liveDot"></span>
         <span id="lastUpdated">Loading…</span>
       </div>
-      <button onclick="loadData()" class="px-4 py-2 rounded-full bg-stone-900 text-white hover:bg-stone-700 transition text-xs uppercase tracking-widest font-semibold">
-        Refresh
-      </button>
+      <div class="text-xs text-stone-500" id="loggedInAs"></div>
+      <button onclick="loadAll()" class="btn-secondary">Refresh</button>
+      <button onclick="openNewNlfModal()" class="btn-primary">+ New NLF</button>
+      <button onclick="signOut()" class="btn-ghost">Sign out</button>
     </div>
   </div>
 </header>
 
-<!-- ────────────────────── BODY ────────────────────── -->
-<main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+<!-- ─────────────────── MAIN APP ─────────────────── -->
+<main id="app" class="max-w-7xl mx-auto px-6 py-8 space-y-8 hidden">
 
-  <!-- KPI ROW -->
+  <!-- KPIs -->
   <section>
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="kpiGrid">
-      <!-- KPIs injected here -->
-    </div>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="kpiGrid"></div>
   </section>
 
-  <!-- CHARTS -->
+  <!-- Charts -->
   <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="card p-6 lg:col-span-2">
       <h2 class="text-sm uppercase tracking-widest copper-accent font-semibold mb-4">By retailer</h2>
@@ -110,7 +163,7 @@
     </div>
   </section>
 
-  <!-- PENDING REVIEW -->
+  <!-- Waiting on you -->
   <section class="card p-6">
     <div class="flex items-baseline justify-between mb-5">
       <h2 class="display-font text-2xl">Waiting on you</h2>
@@ -119,14 +172,14 @@
     <div id="pendingList" class="space-y-3"></div>
   </section>
 
-  <!-- ALL NLFs TABLE -->
+  <!-- All NLFs -->
   <section class="card p-6">
     <div class="flex items-baseline justify-between mb-5 gap-4 flex-wrap">
       <h2 class="display-font text-2xl">All NLFs</h2>
       <div class="flex items-center gap-3 flex-1 max-w-xl">
         <input id="searchBox" oninput="renderTable()" placeholder="Search retailer, product, ID…"
-               class="flex-1 px-4 py-2 text-sm rounded-full border border-stone-300 focus:outline-none focus:border-stone-900 bg-white" />
-        <select id="filterStatus" onchange="renderTable()" class="px-4 py-2 text-sm rounded-full border border-stone-300 bg-white">
+               class="form-input flex-1" />
+        <select id="filterStatus" onchange="renderTable()" class="form-input" style="max-width:180px">
           <option value="">All statuses</option>
         </select>
       </div>
@@ -143,6 +196,7 @@
             <th class="py-3 pr-4">SKUs</th>
             <th class="py-3 pr-4">Status</th>
             <th class="py-3 pr-4">Flag</th>
+            <th class="py-3 pr-4"></th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -151,33 +205,93 @@
     <div id="tableEmpty" class="hidden text-center py-12 text-stone-500">No NLFs match your filters.</div>
   </section>
 
-  <!-- FOOTER -->
   <footer class="text-center text-xs text-stone-500 pt-4 pb-12">
-    Built for Frank Body's Key Accounts workstream · Auto-refreshes every <span id="refreshSecs"></span>s ·
-    Read-only view of the <em>Frank Body — KAA Tracker</em> Google Sheet
+    Live data from Supabase · auto-refreshes on changes
   </footer>
 </main>
 
-<!-- ────────────────────── EMPTY / ERROR STATES ────────────────────── -->
-<div id="setupNotice" class="hidden fixed inset-x-0 top-20 mx-auto max-w-2xl px-6">
-  <div class="empty-state bg-white p-6">
-    <div class="text-xs uppercase tracking-widest copper-accent font-semibold mb-2">Setup needed</div>
-    <h3 class="display-font text-2xl mb-3">Almost there.</h3>
-    <p class="text-stone-700 mb-3">This dashboard isn't connected to your Google Sheet yet. Open <code class="bg-stone-100 px-1 rounded">index.html</code> in a text editor and replace <code class="bg-stone-100 px-1 rounded">REPLACE_ME_WITH_PUBLISHED_CSV_URL</code> with the published CSV URL of the <em>Frank Body — KAA Tracker</em> sheet (tab <code class="bg-stone-100 px-1 rounded">nlf_drafts</code>).</p>
-    <p class="text-stone-700 text-sm">See the README in this folder for step-by-step instructions on publishing the sheet.</p>
+<!-- ─────────────────── NEW NLF MODAL ─────────────────── -->
+<div id="newNlfBackdrop" class="modal-backdrop hidden" onclick="if(event.target===this) closeNewNlfModal()">
+  <div class="modal">
+    <div class="flex items-baseline justify-between mb-5">
+      <h2 class="display-font text-2xl">Request a new NLF</h2>
+      <button onclick="closeNewNlfModal()" class="btn-ghost">✕</button>
+    </div>
+    <form id="newNlfForm" class="space-y-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="form-label">Retailer *</label>
+          <select id="nlfRetailer" class="form-input" required>
+            <option value="">Select…</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Market</label>
+          <input id="nlfMarket" class="form-input" placeholder="AU / UK / EU / US / CA / NZ / SEA" />
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Products *</label>
+        <input id="nlfProducts" class="form-input" required
+               placeholder='e.g. Original Coffee Scrub 200g, Coconut Coffee Scrub 200g' />
+        <div class="text-xs text-stone-500 mt-1">Comma-separated. The agent will pull from item_master if it can match.</div>
+      </div>
+      <div>
+        <label class="form-label">Notes for the agent</label>
+        <textarea id="nlfNotes" class="form-input" rows="3"
+                  placeholder='e.g. April 2026 ranging cycle, replaces last year\'s SKUs, prioritise INCI compliance…'></textarea>
+      </div>
+      <div>
+        <label class="form-label">Reviewer</label>
+        <input id="nlfReviewer" class="form-input" value="Jenne" />
+      </div>
+      <div class="flex items-center gap-3 pt-2">
+        <label class="flex items-center gap-2 text-sm text-stone-700">
+          <input type="checkbox" id="nlfAutoDraft" checked />
+          Generate AI draft immediately after submitting
+        </label>
+      </div>
+      <div id="nlfFormError" class="hidden text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3"></div>
+      <div class="flex justify-end gap-3 pt-3">
+        <button type="button" onclick="closeNewNlfModal()" class="btn-secondary">Cancel</button>
+        <button type="submit" class="btn-primary" id="nlfSubmitBtn">Submit request</button>
+      </div>
+    </form>
   </div>
 </div>
 
-<!-- ────────────────────── LOGIC ────────────────────── -->
+<!-- ─────────────────── DRAFT VIEWER MODAL ─────────────────── -->
+<div id="draftBackdrop" class="modal-backdrop hidden" onclick="if(event.target===this) closeDraftModal()">
+  <div class="modal modal-lg">
+    <div class="flex items-baseline justify-between mb-5">
+      <div>
+        <div class="text-xs uppercase tracking-widest copper-accent font-semibold mb-1" id="draftHeader">Draft</div>
+        <h2 class="display-font text-2xl" id="draftTitle">—</h2>
+      </div>
+      <button onclick="closeDraftModal()" class="btn-ghost">✕</button>
+    </div>
+    <div id="draftLoading" class="hidden text-center py-12 text-stone-500">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-stone-700 mb-3"></div>
+      <div id="draftLoadingMsg">Generating draft via Claude…</div>
+    </div>
+    <div id="draftBody" class="md-body max-h-[60vh] overflow-y-auto pr-2"></div>
+    <div class="flex flex-wrap gap-3 mt-6 pt-5 border-t border-stone-200" id="draftActions"></div>
+  </div>
+</div>
+
+<!-- ─────────────────── LOGIC ─────────────────── -->
 <script>
-  document.getElementById('refreshSecs').textContent = REFRESH_SECONDS;
-
+  let supa = null;
+  let user = null;
   let rowsCache = [];
-  let retailerChartObj = null;
-  let statusChartObj = null;
+  let retailerCache = [];
+  let charts = { retailer: null, status: null };
+  let realtimeChannel = null;
 
-  const STATUS_ORDER = ['PENDING REVIEW','IN REVIEW','APPROVED','SUBMITTED','REJECTED BY BUYER','WAVE 1 OUT OF SCOPE'];
+  const STATUS_ORDER = ['REQUESTED','GENERATING','PENDING REVIEW','IN REVIEW','APPROVED','SUBMITTED','REJECTED BY BUYER','WAVE 1 OUT OF SCOPE'];
   const STATUS_COLOURS = {
+    'REQUESTED':            '#E0A050',
+    'GENERATING':           '#4A82C8',
     'PENDING REVIEW':       '#D89A82',
     'IN REVIEW':            '#6B7F5E',
     'APPROVED':             '#7B9C5C',
@@ -185,220 +299,92 @@
     'REJECTED BY BUYER':    '#B5694F',
     'WAVE 1 OUT OF SCOPE':  '#BFB3A6'
   };
-  const RETAILER_COLOUR = '#B5694F';
+  const pillFor = (s) => ({
+    'REQUESTED': 'pill-requested',
+    'GENERATING': 'pill-generating',
+    'PENDING REVIEW': 'pill-pending',
+    'IN REVIEW': 'pill-review',
+    'APPROVED': 'pill-approved',
+    'SUBMITTED': 'pill-submitted',
+    'REJECTED BY BUYER': 'pill-rejected',
+    'WAVE 1 OUT OF SCOPE': 'pill-oos'
+  }[String(s||'').toUpperCase()] || 'pill-oos');
 
-  function pillFor(status) {
-    const map = {
-      'PENDING REVIEW': 'pill-pending',
-      'IN REVIEW': 'pill-review',
-      'APPROVED': 'pill-approved',
-      'SUBMITTED': 'pill-submitted',
-      'REJECTED BY BUYER': 'pill-rejected',
-      'WAVE 1 OUT OF SCOPE': 'pill-oos'
-    };
-    return map[status?.toUpperCase()] || 'pill-oos';
-  }
-
-  function ageDays(iso) {
+  const ageDays = (iso) => {
     if (!iso) return null;
     const d = new Date(iso);
     if (isNaN(d)) return null;
     return Math.floor((Date.now() - d.getTime()) / 86400000);
-  }
-
-  async function loadData() {
-    const ts = document.getElementById('lastUpdated');
-    const dot = document.getElementById('liveDot');
-    dot.className = 'dot bg-amber-400';
-    ts.textContent = 'Refreshing…';
-
-    if (SHEET_CSV_URL === 'REPLACE_ME_WITH_PUBLISHED_CSV_URL') {
-      document.getElementById('setupNotice').classList.remove('hidden');
-      dot.className = 'dot bg-stone-400';
-      ts.textContent = 'Not connected';
-      renderEmpty();
-      return;
-    }
-
-    try {
-      const res = await fetch(SHEET_CSV_URL + '&_=' + Date.now(), { cache: 'no-store' });
-      const text = await res.text();
-      const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
-      rowsCache = parsed.data.filter(r => r.request_id);
-      populateStatusFilter();
-      render();
-      dot.className = 'dot bg-green-500';
-      ts.textContent = 'Updated ' + new Date().toLocaleTimeString();
-    } catch (err) {
-      console.error(err);
-      dot.className = 'dot bg-red-500';
-      ts.textContent = 'Connection failed';
-    }
-  }
-
-  function populateStatusFilter() {
-    const sel = document.getElementById('filterStatus');
-    if (sel.options.length > 1) return;
-    STATUS_ORDER.forEach(s => {
-      const o = document.createElement('option');
-      o.value = s; o.textContent = s;
-      sel.appendChild(o);
-    });
-  }
-
-  function render() {
-    renderKpis();
-    renderCharts();
-    renderPending();
-    renderTable();
-  }
-
-  function renderEmpty() {
-    document.getElementById('kpiGrid').innerHTML = '';
-    document.getElementById('pendingList').innerHTML = '<div class="empty-state p-8 text-center"><div class="text-xs uppercase tracking-widest copper-accent font-semibold mb-2">No data yet</div><div class="text-stone-700">The tracker is empty — drafts will appear here as Jenne creates them in Cowork.</div></div>';
-    document.getElementById('tableBody').innerHTML = '';
-    document.getElementById('tableEmpty').classList.remove('hidden');
-  }
-
-  function renderKpis() {
-    const grid = document.getElementById('kpiGrid');
-    const total = rowsCache.length;
-    const pending = rowsCache.filter(r => /pending/i.test(r.status)).length;
-    const submitted = rowsCache.filter(r => /^submitted/i.test(r.status)).length;
-    const approved = rowsCache.filter(r => /approved/i.test(r.status)).length;
-    const rejected = rowsCache.filter(r => /rejected/i.test(r.status)).length;
-    const items = [
-      { label: 'Total NLFs',        value: total,     hint: 'all time' },
-      { label: 'Pending review',    value: pending,   hint: 'waiting on Jenne' },
-      { label: 'Submitted',         value: submitted, hint: 'with buyers' },
-      { label: 'Approved',          value: approved,  hint: 'live in retailer system' },
-      { label: 'Rejected',          value: rejected,  hint: 'need rework' }
-    ];
-    grid.innerHTML = items.map(k => `
-      <div class="card p-5">
-        <div class="text-xs uppercase tracking-widest text-stone-500 mb-2">${k.label}</div>
-        <div class="kpi-num">${k.value}</div>
-        <div class="text-xs text-stone-500 mt-1">${k.hint}</div>
-      </div>
-    `).join('');
-  }
-
-  function renderCharts() {
-    // RETAILER
-    const counts = {};
-    rowsCache.forEach(r => {
-      const k = (r.retailer || 'Unknown').trim();
-      counts[k] = (counts[k] || 0) + 1;
-    });
-    const labels = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
-    const data = labels.map(l => counts[l]);
-    if (retailerChartObj) retailerChartObj.destroy();
-    retailerChartObj = new Chart(document.getElementById('retailerChart'), {
-      type: 'bar',
-      data: { labels, datasets: [{
-        data, backgroundColor: RETAILER_COLOUR, borderRadius: 6, maxBarThickness: 36
-      }]},
-      options: {
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { display: false } },
-          y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#EFE8DE' } }
-        }
-      }
-    });
-
-    // STATUS PIPELINE
-    const sCounts = {};
-    rowsCache.forEach(r => {
-      const k = (r.status || 'Unknown').toUpperCase().trim();
-      sCounts[k] = (sCounts[k] || 0) + 1;
-    });
-    const sLabels = STATUS_ORDER.filter(s => sCounts[s] > 0);
-    const sData = sLabels.map(l => sCounts[l]);
-    const sColors = sLabels.map(l => STATUS_COLOURS[l] || '#BFB3A6');
-    if (statusChartObj) statusChartObj.destroy();
-    statusChartObj = new Chart(document.getElementById('statusChart'), {
-      type: 'doughnut',
-      data: { labels: sLabels, datasets: [{ data: sData, backgroundColor: sColors, borderWidth: 0 }] },
-      options: { plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } } }, cutout: '60%' }
-    });
-  }
-
-  function renderPending() {
-    const el = document.getElementById('pendingList');
-    const pending = rowsCache.filter(r => /pending|in review/i.test(r.status));
-    document.getElementById('pendingCount').textContent =
-      pending.length ? `${pending.length} item${pending.length===1?'':'s'}` : '';
-    if (pending.length === 0) {
-      el.innerHTML = '<div class="empty-state p-8 text-center"><div class="text-xs uppercase tracking-widest copper-accent font-semibold mb-2">Inbox zero</div><div class="text-stone-700">Nothing waiting on review.</div></div>';
-      return;
-    }
-    el.innerHTML = pending.sort((a,b) => (a.created_at||'').localeCompare(b.created_at||'')).map(r => {
-      const age = ageDays(r.created_at);
-      const ageText = age === null ? '' : (age === 0 ? 'just drafted' : `${age} day${age===1?'':'s'} old`);
-      return `
-        <div class="border border-stone-200 rounded-xl p-4 hover:bg-stone-50 transition">
-          <div class="flex items-start justify-between gap-4">
-            <div class="flex-1">
-              <div class="flex items-center gap-3 mb-1">
-                <span class="font-semibold">${escapeHtml(r.retailer || '—')}</span>
-                <span class="text-stone-400">·</span>
-                <span class="text-stone-600">${escapeHtml(r.market || '')}</span>
-                <span class="pill ${pillFor(r.status)}">${escapeHtml(r.status || 'unknown')}</span>
-              </div>
-              <div class="text-sm text-stone-700">${escapeHtml(r.products || '—')}</div>
-              ${r.top_flags ? `<div class="text-xs text-stone-500 mt-1.5 italic">Flag: ${escapeHtml(r.top_flags)}</div>` : ''}
-            </div>
-            <div class="text-right shrink-0">
-              <div class="text-xs text-stone-500 font-mono">${escapeHtml(r.request_id || '')}</div>
-              <div class="text-xs text-stone-400 mt-1">${ageText}</div>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function renderTable() {
-    const q = (document.getElementById('searchBox').value || '').toLowerCase();
-    const filterStatus = document.getElementById('filterStatus').value;
-    let rows = rowsCache.slice().reverse(); // newest first
-    if (q) rows = rows.filter(r =>
-      (r.retailer||'').toLowerCase().includes(q) ||
-      (r.products||'').toLowerCase().includes(q) ||
-      (r.request_id||'').toLowerCase().includes(q) ||
-      (r.market||'').toLowerCase().includes(q)
-    );
-    if (filterStatus) rows = rows.filter(r => (r.status||'').toUpperCase() === filterStatus);
-    const tb = document.getElementById('tableBody');
-    const empty = document.getElementById('tableEmpty');
-    if (rows.length === 0) {
-      tb.innerHTML = '';
-      empty.classList.remove('hidden');
-      return;
-    }
-    empty.classList.add('hidden');
-    tb.innerHTML = rows.map(r => `
-      <tr class="table-row border-b border-stone-100">
-        <td class="py-3 pr-4 font-mono text-xs text-stone-600">${escapeHtml(r.request_id||'')}</td>
-        <td class="py-3 pr-4 text-stone-600 whitespace-nowrap">${escapeHtml((r.created_at||'').substring(0,10))}</td>
-        <td class="py-3 pr-4 font-medium">${escapeHtml(r.retailer||'')}</td>
-        <td class="py-3 pr-4 text-stone-600">${escapeHtml(r.market||'')}</td>
-        <td class="py-3 pr-4 text-stone-700">${escapeHtml(r.products||'')}</td>
-        <td class="py-3 pr-4 text-stone-600">${escapeHtml(r.sku_count||'')}</td>
-        <td class="py-3 pr-4"><span class="pill ${pillFor(r.status)}">${escapeHtml(r.status||'')}</span></td>
-        <td class="py-3 pr-4 text-xs text-stone-500 italic">${escapeHtml(r.top_flags||'')}</td>
-      </tr>
-    `).join('');
-  }
+  };
 
   function escapeHtml(s) {
     return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  loadData();
-  setInterval(loadData, REFRESH_SECONDS * 1000);
-</script>
+  // ──── Bootstrap (waits for supabase-js module) ────
+  async function boot() {
+    while (!window.__supaCreate) await new Promise(r => setTimeout(r, 30));
+    supa = window.__supaCreate(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      db: { schema: 'kaa' },
+      auth: { persistSession: true, autoRefreshToken: true }
+    });
+    const { data: { session } } = await supa.auth.getSession();
+    if (session) showApp(session.user); else showLogin();
+  }
 
-</body>
-</html>
+  function showLogin() {
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('appHeader').classList.add('hidden');
+    document.getElementById('app').classList.add('hidden');
+  }
+  function showApp(u) {
+    user = u;
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('appHeader').classList.remove('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    document.getElementById('loggedInAs').textContent = u.email || '';
+    loadAll();
+    subscribeRealtime();
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = document.getElementById('loginError');
+    err.classList.add('hidden');
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const { data, error } = await supa.auth.signInWithPassword({ email, password });
+    if (error) {
+      err.textContent = error.message;
+      err.classList.remove('hidden');
+      return;
+    }
+    showApp(data.user);
+  });
+
+  async function signOut() {
+    await supa.auth.signOut();
+    if (realtimeChannel) { await supa.removeChannel(realtimeChannel); realtimeChannel = null; }
+    showLogin();
+  }
+
+  // ──── Data loading ────
+  async function loadAll() {
+    setLive('refreshing', 'amber');
+    try {
+      const [nlfRes, retRes] = await Promise.all([
+        supa.from('nlf_drafts').select('*').order('created_at', { ascending: false }),
+        supa.from('retailers').select('*').eq('active', true).order('display_name')
+      ]);
+      if (nlfRes.error) throw nlfRes.error;
+      rowsCache = nlfRes.data || [];
+      retailerCache = retRes.data || [];
+      populateStatusFilter();
+      populateRetailerSelect();
+      renderKpis();
+      renderCharts();
+      renderPending();
+      renderTable();
+      setLive('Updated ' + new Date().toLocaleTimeString(), 'green');
+    } catch (e) {
+      console.error(
