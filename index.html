@@ -16,106 +16,78 @@
 </script>
 <style>
   :root {
-    --fb-cream:   #F5EDE4;
-    --fb-blush:   #F2D5C4;
-    --fb-rose:    #D89A82;
-    --fb-copper:  #B5694F;
-    --fb-coffee:  #4A2C20;
-    --fb-ink:     #1E1410;
-    --fb-sand:    #E8D9C8;
+    --fb-cream:#F5EDE4; --fb-blush:#F2D5C4; --fb-rose:#D89A82;
+    --fb-copper:#B5694F; --fb-coffee:#4A2C20; --fb-ink:#1E1410; --fb-sand:#E8D9C8;
   }
   body { font-family: 'Inter', system-ui, sans-serif; background: var(--fb-cream); color: var(--fb-ink); }
   .display-font { font-family: 'Playfair Display', Georgia, serif; }
   .card { background: white; border: 1px solid var(--fb-sand); border-radius: 14px;
           box-shadow: 0 1px 0 rgba(74,44,32,0.04), 0 8px 24px -16px rgba(74,44,32,0.18); }
-  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
-          font-size: 11px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; }
-  .pill-requested  { background: #FBE7CC; color: #6A4400; }
-  .pill-generating { background: #E8F0FF; color: #2F4E8C; }
-  .pill-pending    { background: #FFF1D6; color: #8A5A00; }
-  .pill-review     { background: #E2EAF5; color: #2C4A78; }
-  .pill-approved   { background: #E2F0DC; color: #355A26; }
-  .pill-submitted  { background: #EAE3F5; color: #4B3478; }
-  .pill-rejected   { background: #F8DDD6; color: #862F1E; }
-  .pill-oos        { background: #ECECEC; color: #555; }
-  .kpi-num { font-family: 'Playfair Display', serif; font-size: 44px; line-height: 1; color: var(--fb-coffee); font-weight: 700; }
+  .pill { display:inline-flex; align-items:center; gap:6px; padding:3px 10px; border-radius:999px;
+          font-size:11px; font-weight:600; letter-spacing:0.02em; text-transform:uppercase; }
+  .pill-requested  { background:#FBE7CC; color:#6A4400; }
+  .pill-generating { background:#E8F0FF; color:#2F4E8C; }
+  .pill-pending    { background:#FFF1D6; color:#8A5A00; }
+  .pill-review     { background:#E2EAF5; color:#2C4A78; }
+  .pill-approved   { background:#E2F0DC; color:#355A26; }
+  .pill-submitted  { background:#EAE3F5; color:#4B3478; }
+  .pill-rejected   { background:#F8DDD6; color:#862F1E; }
+  .pill-oos        { background:#ECECEC; color:#555; }
+  .kpi-num { font-family:'Playfair Display',serif; font-size:44px; line-height:1; color:var(--fb-coffee); font-weight:700; }
   .copper-accent { color: var(--fb-copper); }
-  .table-row:hover { background: #FBF5EE; }
-  .scroll-x { overflow-x: auto; }
-  .empty-state { border: 1px dashed var(--fb-rose); border-radius: 14px; color: var(--fb-coffee); }
-  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
-  .btn-primary {
-    background: var(--fb-coffee); color: white; padding: 10px 20px; border-radius: 999px;
-    font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
-    transition: background 0.15s;
-  }
+  .table-row:hover { background:#FBF5EE; }
+  .scroll-x { overflow-x:auto; }
+  .empty-state { border:1px dashed var(--fb-rose); border-radius:14px; color:var(--fb-coffee); }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; }
+  .btn-primary { background:var(--fb-coffee); color:white; padding:10px 20px; border-radius:999px;
+                 font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; transition:background 0.15s; }
   .btn-primary:hover { background: var(--fb-ink); }
-  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn-secondary {
-    background: white; color: var(--fb-coffee); padding: 8px 18px; border-radius: 999px;
-    font-size: 12px; font-weight: 600; border: 1px solid var(--fb-sand);
-  }
+  .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+  .btn-secondary { background:white; color:var(--fb-coffee); padding:8px 18px; border-radius:999px;
+                   font-size:12px; font-weight:600; border:1px solid var(--fb-sand); }
   .btn-secondary:hover { background: var(--fb-cream); }
-  .btn-ghost {
-    color: var(--fb-coffee); padding: 6px 12px; font-size: 12px; font-weight: 500;
-    border-radius: 8px;
-  }
+  .btn-ghost { color:var(--fb-coffee); padding:6px 12px; font-size:12px; font-weight:500; border-radius:8px; }
   .btn-ghost:hover { background: var(--fb-cream); }
-  .modal-backdrop {
-    position: fixed; inset: 0; background: rgba(30,20,16,0.45); z-index: 50;
-    display: flex; align-items: flex-start; justify-content: center; padding-top: 5vh;
-    overflow-y: auto;
-  }
-  .modal {
-    background: white; border-radius: 18px; max-width: 720px; width: 92%;
-    padding: 32px; box-shadow: 0 24px 60px rgba(30,20,16,0.3);
-    margin-bottom: 5vh;
-  }
-  .modal-lg { max-width: 920px; }
-  .form-input {
-    width: 100%; padding: 10px 14px; border: 1px solid var(--fb-sand); border-radius: 10px;
-    background: white; font-size: 14px;
-  }
-  .form-input:focus { outline: none; border-color: var(--fb-coffee); }
-  .form-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
-                color: var(--fb-coffee); margin-bottom: 6px; display: block; }
-  .md-body h1 { font-family: 'Playfair Display', serif; font-size: 26px; margin: 8px 0 16px; }
-  .md-body h2 { font-family: 'Playfair Display', serif; font-size: 18px; margin: 24px 0 10px;
-                color: var(--fb-coffee); border-bottom: 1px solid var(--fb-sand); padding-bottom: 6px; }
-  .md-body h3 { font-size: 15px; font-weight: 600; margin: 18px 0 8px; }
-  .md-body p, .md-body li { font-size: 14px; line-height: 1.6; }
-  .md-body ul, .md-body ol { padding-left: 22px; margin: 8px 0; }
-  .md-body li { margin: 4px 0; }
-  .md-body table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
-  .md-body th, .md-body td { border: 1px solid var(--fb-sand); padding: 8px 12px; text-align: left; }
-  .md-body th { background: var(--fb-cream); font-weight: 600; }
-  .md-body code { background: var(--fb-cream); padding: 1px 6px; border-radius: 4px; font-size: 13px; }
-  .md-body strong { font-weight: 600; }
+  .modal-backdrop { position:fixed; inset:0; background:rgba(30,20,16,0.45); z-index:50;
+                    display:flex; align-items:flex-start; justify-content:center; padding-top:5vh; overflow-y:auto; }
+  .modal { background:white; border-radius:18px; max-width:720px; width:92%; padding:32px;
+           box-shadow:0 24px 60px rgba(30,20,16,0.3); margin-bottom:5vh; }
+  .modal-lg { max-width:920px; }
+  .form-input { width:100%; padding:10px 14px; border:1px solid var(--fb-sand); border-radius:10px; background:white; font-size:14px; }
+  .form-input:focus { outline:none; border-color: var(--fb-coffee); }
+  .form-label { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;
+                color:var(--fb-coffee); margin-bottom:6px; display:block; }
+  .md-body h1 { font-family:'Playfair Display',serif; font-size:26px; margin:8px 0 16px; }
+  .md-body h2 { font-family:'Playfair Display',serif; font-size:18px; margin:24px 0 10px;
+                color:var(--fb-coffee); border-bottom:1px solid var(--fb-sand); padding-bottom:6px; }
+  .md-body h3 { font-size:15px; font-weight:600; margin:18px 0 8px; }
+  .md-body p, .md-body li { font-size:14px; line-height:1.6; }
+  .md-body ul, .md-body ol { padding-left:22px; margin:8px 0; }
+  .md-body li { margin:4px 0; }
+  .md-body table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+  .md-body th, .md-body td { border:1px solid var(--fb-sand); padding:8px 12px; text-align:left; }
+  .md-body th { background: var(--fb-cream); font-weight:600; }
+  .md-body code { background: var(--fb-cream); padding:1px 6px; border-radius:4px; font-size:13px; }
+  .md-body strong { font-weight:600; }
 </style>
 </head>
 <body class="min-h-screen">
 
-<!-- ─────────────────── CONFIG ─────────────────── -->
 <script>
   const SUPABASE_URL = "https://ububaqraqkjyaujfpyzu.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_oHacoy9ZebHw2muuWb7bzw_hFBjEPSI";
 </script>
 
-<!-- ─────────────────── LOGIN SCREEN ─────────────────── -->
 <div id="loginScreen" class="min-h-screen flex items-center justify-center px-6 hidden">
   <div class="card p-10 max-w-md w-full">
     <div class="text-xs uppercase tracking-widest copper-accent font-semibold mb-2">Frank Body</div>
     <h1 class="display-font text-3xl mb-2">Key Accounts</h1>
     <p class="text-sm text-stone-600 mb-8">Sign in to manage NLF drafts and status.</p>
     <form id="loginForm" class="space-y-5">
-      <div>
-        <label class="form-label">Email</label>
-        <input id="loginEmail" type="email" class="form-input" required autocomplete="email" />
-      </div>
-      <div>
-        <label class="form-label">Password</label>
-        <input id="loginPassword" type="password" class="form-input" required autocomplete="current-password" />
-      </div>
+      <div><label class="form-label">Email</label>
+        <input id="loginEmail" type="email" class="form-input" required autocomplete="email" /></div>
+      <div><label class="form-label">Password</label>
+        <input id="loginPassword" type="password" class="form-input" required autocomplete="current-password" /></div>
       <div id="loginError" class="hidden text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3"></div>
       <button type="submit" class="btn-primary w-full">Sign in</button>
     </form>
@@ -123,18 +95,15 @@
   </div>
 </div>
 
-<!-- ─────────────────── HEADER ─────────────────── -->
 <header id="appHeader" class="border-b border-stone-200 bg-white hidden">
-  <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+  <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between flex-wrap gap-3">
     <div>
       <div class="text-xs uppercase tracking-widest copper-accent font-semibold mb-1">Frank Body</div>
       <h1 class="display-font text-3xl">Key Accounts</h1>
     </div>
-    <div class="flex items-center gap-4 text-sm">
-      <div class="text-stone-500">
-        <span class="dot bg-green-500" id="liveDot"></span>
-        <span id="lastUpdated">Loading…</span>
-      </div>
+    <div class="flex items-center gap-4 text-sm flex-wrap">
+      <div class="text-stone-500"><span class="dot bg-green-500" id="liveDot"></span>
+        <span id="lastUpdated">Loading…</span></div>
       <div class="text-xs text-stone-500" id="loggedInAs"></div>
       <button onclick="loadAll()" class="btn-secondary">Refresh</button>
       <button onclick="openNewNlfModal()" class="btn-primary">+ New NLF</button>
@@ -143,15 +112,10 @@
   </div>
 </header>
 
-<!-- ─────────────────── MAIN APP ─────────────────── -->
 <main id="app" class="max-w-7xl mx-auto px-6 py-8 space-y-8 hidden">
-
-  <!-- KPIs -->
   <section>
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="kpiGrid"></div>
   </section>
-
-  <!-- Charts -->
   <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="card p-6 lg:col-span-2">
       <h2 class="text-sm uppercase tracking-widest copper-accent font-semibold mb-4">By retailer</h2>
@@ -162,8 +126,6 @@
       <canvas id="statusChart" height="240"></canvas>
     </div>
   </section>
-
-  <!-- Waiting on you -->
   <section class="card p-6">
     <div class="flex items-baseline justify-between mb-5">
       <h2 class="display-font text-2xl">Waiting on you</h2>
@@ -171,14 +133,11 @@
     </div>
     <div id="pendingList" class="space-y-3"></div>
   </section>
-
-  <!-- All NLFs -->
   <section class="card p-6">
     <div class="flex items-baseline justify-between mb-5 gap-4 flex-wrap">
       <h2 class="display-font text-2xl">All NLFs</h2>
       <div class="flex items-center gap-3 flex-1 max-w-xl">
-        <input id="searchBox" oninput="renderTable()" placeholder="Search retailer, product, ID…"
-               class="form-input flex-1" />
+        <input id="searchBox" oninput="renderTable()" placeholder="Search retailer, product, ID…" class="form-input flex-1" />
         <select id="filterStatus" onchange="renderTable()" class="form-input" style="max-width:180px">
           <option value="">All statuses</option>
         </select>
@@ -188,15 +147,10 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="text-left text-xs uppercase tracking-widest text-stone-500 border-b border-stone-200">
-            <th class="py-3 pr-4">ID</th>
-            <th class="py-3 pr-4">Created</th>
-            <th class="py-3 pr-4">Retailer</th>
-            <th class="py-3 pr-4">Market</th>
-            <th class="py-3 pr-4">Products</th>
-            <th class="py-3 pr-4">SKUs</th>
-            <th class="py-3 pr-4">Status</th>
-            <th class="py-3 pr-4">Flag</th>
-            <th class="py-3 pr-4"></th>
+            <th class="py-3 pr-4">ID</th><th class="py-3 pr-4">Created</th>
+            <th class="py-3 pr-4">Retailer</th><th class="py-3 pr-4">Market</th>
+            <th class="py-3 pr-4">Products</th><th class="py-3 pr-4">SKUs</th>
+            <th class="py-3 pr-4">Status</th><th class="py-3 pr-4">Flag</th><th class="py-3 pr-4"></th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -204,13 +158,11 @@
     </div>
     <div id="tableEmpty" class="hidden text-center py-12 text-stone-500">No NLFs match your filters.</div>
   </section>
-
   <footer class="text-center text-xs text-stone-500 pt-4 pb-12">
-    Live data from Supabase · auto-refreshes on changes
+    Live data from Supabase · realtime updates · v0.1
   </footer>
 </main>
 
-<!-- ─────────────────── NEW NLF MODAL ─────────────────── -->
 <div id="newNlfBackdrop" class="modal-backdrop hidden" onclick="if(event.target===this) closeNewNlfModal()">
   <div class="modal">
     <div class="flex items-baseline justify-between mb-5">
@@ -219,32 +171,18 @@
     </div>
     <form id="newNlfForm" class="space-y-5">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <label class="form-label">Retailer *</label>
-          <select id="nlfRetailer" class="form-input" required>
-            <option value="">Select…</option>
-          </select>
-        </div>
-        <div>
-          <label class="form-label">Market</label>
-          <input id="nlfMarket" class="form-input" placeholder="AU / UK / EU / US / CA / NZ / SEA" />
-        </div>
+        <div><label class="form-label">Retailer *</label>
+          <select id="nlfRetailer" class="form-input" required><option value="">Select…</option></select></div>
+        <div><label class="form-label">Market</label>
+          <input id="nlfMarket" class="form-input" placeholder="AU / UK / EU / US / CA / NZ / SEA" /></div>
       </div>
-      <div>
-        <label class="form-label">Products *</label>
-        <input id="nlfProducts" class="form-input" required
-               placeholder='e.g. Original Coffee Scrub 200g, Coconut Coffee Scrub 200g' />
-        <div class="text-xs text-stone-500 mt-1">Comma-separated. The agent will pull from item_master if it can match.</div>
-      </div>
-      <div>
-        <label class="form-label">Notes for the agent</label>
-        <textarea id="nlfNotes" class="form-input" rows="3"
-                  placeholder='e.g. April 2026 ranging cycle, replaces last year\'s SKUs, prioritise INCI compliance…'></textarea>
-      </div>
-      <div>
-        <label class="form-label">Reviewer</label>
-        <input id="nlfReviewer" class="form-input" value="Jenne" />
-      </div>
+      <div><label class="form-label">Products *</label>
+        <input id="nlfProducts" class="form-input" required placeholder="e.g. Original Coffee Scrub 200g, Coconut Coffee Scrub 200g" />
+        <div class="text-xs text-stone-500 mt-1">Comma-separated. The agent will pull SKU data from item_master if it matches.</div></div>
+      <div><label class="form-label">Notes for the agent</label>
+        <textarea id="nlfNotes" class="form-input" rows="3" placeholder="e.g. April 2026 ranging cycle, replaces last year's SKUs, prioritise INCI compliance…"></textarea></div>
+      <div><label class="form-label">Reviewer</label>
+        <input id="nlfReviewer" class="form-input" value="Jenne" /></div>
       <div class="flex items-center gap-3 pt-2">
         <label class="flex items-center gap-2 text-sm text-stone-700">
           <input type="checkbox" id="nlfAutoDraft" checked />
@@ -260,7 +198,6 @@
   </div>
 </div>
 
-<!-- ─────────────────── DRAFT VIEWER MODAL ─────────────────── -->
 <div id="draftBackdrop" class="modal-backdrop hidden" onclick="if(event.target===this) closeDraftModal()">
   <div class="modal modal-lg">
     <div class="flex items-baseline justify-between mb-5">
@@ -279,7 +216,6 @@
   </div>
 </div>
 
-<!-- ─────────────────── LOGIC ─────────────────── -->
 <script>
   let supa = null;
   let user = null;
@@ -290,38 +226,17 @@
 
   const STATUS_ORDER = ['REQUESTED','GENERATING','PENDING REVIEW','IN REVIEW','APPROVED','SUBMITTED','REJECTED BY BUYER','WAVE 1 OUT OF SCOPE'];
   const STATUS_COLOURS = {
-    'REQUESTED':            '#E0A050',
-    'GENERATING':           '#4A82C8',
-    'PENDING REVIEW':       '#D89A82',
-    'IN REVIEW':            '#6B7F5E',
-    'APPROVED':             '#7B9C5C',
-    'SUBMITTED':            '#7860B5',
-    'REJECTED BY BUYER':    '#B5694F',
-    'WAVE 1 OUT OF SCOPE':  '#BFB3A6'
+    'REQUESTED':'#E0A050','GENERATING':'#4A82C8','PENDING REVIEW':'#D89A82','IN REVIEW':'#6B7F5E',
+    'APPROVED':'#7B9C5C','SUBMITTED':'#7860B5','REJECTED BY BUYER':'#B5694F','WAVE 1 OUT OF SCOPE':'#BFB3A6'
   };
   const pillFor = (s) => ({
-    'REQUESTED': 'pill-requested',
-    'GENERATING': 'pill-generating',
-    'PENDING REVIEW': 'pill-pending',
-    'IN REVIEW': 'pill-review',
-    'APPROVED': 'pill-approved',
-    'SUBMITTED': 'pill-submitted',
-    'REJECTED BY BUYER': 'pill-rejected',
-    'WAVE 1 OUT OF SCOPE': 'pill-oos'
+    'REQUESTED':'pill-requested','GENERATING':'pill-generating','PENDING REVIEW':'pill-pending',
+    'IN REVIEW':'pill-review','APPROVED':'pill-approved','SUBMITTED':'pill-submitted',
+    'REJECTED BY BUYER':'pill-rejected','WAVE 1 OUT OF SCOPE':'pill-oos'
   }[String(s||'').toUpperCase()] || 'pill-oos');
+  const ageDays = (iso) => { if (!iso) return null; const d = new Date(iso); return isNaN(d)?null:Math.floor((Date.now()-d.getTime())/86400000); };
+  const esc = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  const ageDays = (iso) => {
-    if (!iso) return null;
-    const d = new Date(iso);
-    if (isNaN(d)) return null;
-    return Math.floor((Date.now() - d.getTime()) / 86400000);
-  };
-
-  function escapeHtml(s) {
-    return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
-
-  // ──── Bootstrap (waits for supabase-js module) ────
   async function boot() {
     while (!window.__supaCreate) await new Promise(r => setTimeout(r, 30));
     supa = window.__supaCreate(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -349,16 +264,12 @@
 
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const err = document.getElementById('loginError');
-    err.classList.add('hidden');
+    const errEl = document.getElementById('loginError');
+    errEl.classList.add('hidden');
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     const { data, error } = await supa.auth.signInWithPassword({ email, password });
-    if (error) {
-      err.textContent = error.message;
-      err.classList.remove('hidden');
-      return;
-    }
+    if (error) { errEl.textContent = error.message; errEl.classList.remove('hidden'); return; }
     showApp(data.user);
   });
 
@@ -368,7 +279,6 @@
     showLogin();
   }
 
-  // ──── Data loading ────
   async function loadAll() {
     setLive('refreshing', 'amber');
     try {
@@ -379,12 +289,312 @@
       if (nlfRes.error) throw nlfRes.error;
       rowsCache = nlfRes.data || [];
       retailerCache = retRes.data || [];
-      populateStatusFilter();
-      populateRetailerSelect();
-      renderKpis();
-      renderCharts();
-      renderPending();
-      renderTable();
+      populateStatusFilter(); populateRetailerSelect();
+      renderKpis(); renderCharts(); renderPending(); renderTable();
       setLive('Updated ' + new Date().toLocaleTimeString(), 'green');
     } catch (e) {
-      console.error(
+      console.error(e);
+      setLive('Error: ' + (e.message||e), 'red');
+    }
+  }
+
+  function setLive(msg, color) {
+    const c = {green:'green-500',amber:'amber-400',red:'red-500'}[color]||'stone-400';
+    document.getElementById('liveDot').className = 'dot bg-' + c;
+    document.getElementById('lastUpdated').textContent = msg;
+  }
+
+  function subscribeRealtime() {
+    if (realtimeChannel) return;
+    realtimeChannel = supa.channel('kaa-nlf-changes')
+      .on('postgres_changes', { event: '*', schema: 'kaa', table: 'nlf_drafts' }, () => loadAll())
+      .subscribe();
+  }
+
+  function populateStatusFilter() {
+    const sel = document.getElementById('filterStatus');
+    if (sel.options.length > 1) return;
+    STATUS_ORDER.forEach(s => { const o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
+  }
+
+  function populateRetailerSelect() {
+    const sel = document.getElementById('nlfRetailer');
+    sel.innerHTML = '<option value="">Select…</option>';
+    retailerCache.forEach(r => {
+      const o = document.createElement('option');
+      o.value = r.display_name;
+      o.textContent = `${r.display_name} (${r.market || '—'})`;
+      o.dataset.market = r.market || '';
+      sel.appendChild(o);
+    });
+  }
+
+  document.getElementById('nlfRetailer').addEventListener('change', (e) => {
+    const sel = e.target.options[e.target.selectedIndex];
+    document.getElementById('nlfMarket').value = sel.dataset.market || '';
+  });
+
+  function renderKpis() {
+    const total = rowsCache.length;
+    const pending = rowsCache.filter(r => /pending|in review/i.test(r.status||'')).length;
+    const submitted = rowsCache.filter(r => /^submitted/i.test(r.status||'')).length;
+    const approved = rowsCache.filter(r => /approved/i.test(r.status||'')).length;
+    const rejected = rowsCache.filter(r => /rejected/i.test(r.status||'')).length;
+    const items = [
+      { label:'Total NLFs', value:total, hint:'all time' },
+      { label:'Pending review', value:pending, hint:'waiting on you' },
+      { label:'Submitted', value:submitted, hint:'with buyers' },
+      { label:'Approved', value:approved, hint:'live in retailer' },
+      { label:'Rejected', value:rejected, hint:'need rework' }
+    ];
+    document.getElementById('kpiGrid').innerHTML = items.map(k => `
+      <div class="card p-5">
+        <div class="text-xs uppercase tracking-widest text-stone-500 mb-2">${k.label}</div>
+        <div class="kpi-num">${k.value}</div>
+        <div class="text-xs text-stone-500 mt-1">${k.hint}</div>
+      </div>`).join('');
+  }
+
+  function renderCharts() {
+    const rCounts = {};
+    rowsCache.forEach(r => { const k=(r.retailer||'Unknown').trim(); rCounts[k]=(rCounts[k]||0)+1; });
+    const rLabels = Object.keys(rCounts).sort((a,b)=>rCounts[b]-rCounts[a]);
+    if (charts.retailer) charts.retailer.destroy();
+    charts.retailer = new Chart(document.getElementById('retailerChart'), {
+      type:'bar',
+      data:{ labels:rLabels, datasets:[{ data:rLabels.map(l=>rCounts[l]), backgroundColor:'#B5694F', borderRadius:6, maxBarThickness:36 }] },
+      options:{ plugins:{ legend:{ display:false }}, scales:{ x:{ grid:{ display:false }}, y:{ beginAtZero:true, ticks:{ precision:0 }}}}
+    });
+    const sCounts = {};
+    rowsCache.forEach(r => { const k=(r.status||'Unknown').toUpperCase().trim(); sCounts[k]=(sCounts[k]||0)+1; });
+    const sLabels = STATUS_ORDER.filter(s => sCounts[s] > 0);
+    if (charts.status) charts.status.destroy();
+    charts.status = new Chart(document.getElementById('statusChart'), {
+      type:'doughnut',
+      data:{ labels:sLabels, datasets:[{ data:sLabels.map(l=>sCounts[l]), backgroundColor:sLabels.map(l=>STATUS_COLOURS[l]||'#BFB3A6'), borderWidth:0 }] },
+      options:{ plugins:{ legend:{ position:'bottom', labels:{ font:{ size:11 }, padding:12 }}}, cutout:'60%' }
+    });
+  }
+
+  function renderPending() {
+    const el = document.getElementById('pendingList');
+    const pending = rowsCache.filter(r => /requested|generating|pending|in review/i.test(r.status||''));
+    document.getElementById('pendingCount').textContent = pending.length ? `${pending.length} item${pending.length===1?'':'s'}` : '';
+    if (pending.length === 0) {
+      el.innerHTML = '<div class="empty-state p-8 text-center"><div class="text-xs uppercase tracking-widest copper-accent font-semibold mb-2">Inbox zero</div><div class="text-stone-700">Nothing waiting on review.</div></div>';
+      return;
+    }
+    el.innerHTML = pending.map(r => {
+      const age = ageDays(r.created_at);
+      const ageText = age === null ? '' : (age === 0 ? 'today' : `${age} day${age===1?'':'s'} old`);
+      return `<div class="border border-stone-200 rounded-xl p-4 hover:bg-stone-50 transition">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-1 flex-wrap">
+              <span class="font-semibold">${esc(r.retailer||'—')}</span>
+              <span class="text-stone-400">·</span>
+              <span class="text-stone-600">${esc(r.market||'')}</span>
+              <span class="pill ${pillFor(r.status)}">${esc(r.status||'unknown')}</span>
+            </div>
+            <div class="text-sm text-stone-700">${esc(r.products||'—')}</div>
+            ${r.top_flags ? `<div class="text-xs text-stone-500 mt-1.5 italic">Flag: ${esc(r.top_flags)}</div>` : ''}
+          </div>
+          <div class="text-right shrink-0 space-y-2">
+            <div class="text-xs text-stone-500 font-mono">${esc(r.request_id||'')}</div>
+            <div class="text-xs text-stone-400">${ageText}</div>
+            <button onclick="openDraft('${esc(r.request_id)}')" class="btn-secondary text-xs">Open</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderTable() {
+    const q = (document.getElementById('searchBox').value||'').toLowerCase();
+    const fs = document.getElementById('filterStatus').value;
+    let rows = rowsCache.slice();
+    if (q) rows = rows.filter(r =>
+      (r.retailer||'').toLowerCase().includes(q) ||
+      (r.products||'').toLowerCase().includes(q) ||
+      (r.request_id||'').toLowerCase().includes(q) ||
+      (r.market||'').toLowerCase().includes(q));
+    if (fs) rows = rows.filter(r => (r.status||'').toUpperCase() === fs);
+    const tb = document.getElementById('tableBody');
+    const empty = document.getElementById('tableEmpty');
+    if (rows.length === 0) { tb.innerHTML=''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    tb.innerHTML = rows.map(r => `<tr class="table-row border-b border-stone-100">
+      <td class="py-3 pr-4 font-mono text-xs text-stone-600">${esc(r.request_id||'')}</td>
+      <td class="py-3 pr-4 text-stone-600 whitespace-nowrap">${esc((r.created_at||'').substring(0,10))}</td>
+      <td class="py-3 pr-4 font-medium">${esc(r.retailer||'')}</td>
+      <td class="py-3 pr-4 text-stone-600">${esc(r.market||'')}</td>
+      <td class="py-3 pr-4 text-stone-700">${esc(r.products||'')}</td>
+      <td class="py-3 pr-4 text-stone-600">${esc(r.sku_count||'')}</td>
+      <td class="py-3 pr-4"><span class="pill ${pillFor(r.status)}">${esc(r.status||'')}</span></td>
+      <td class="py-3 pr-4 text-xs text-stone-500 italic">${esc(r.top_flags||'')}</td>
+      <td class="py-3 pr-4"><button onclick="openDraft('${esc(r.request_id)}')" class="btn-ghost">Open</button></td>
+    </tr>`).join('');
+  }
+
+  function openNewNlfModal() {
+    document.getElementById('newNlfForm').reset();
+    document.getElementById('nlfReviewer').value = 'Jenne';
+    document.getElementById('nlfAutoDraft').checked = true;
+    document.getElementById('nlfFormError').classList.add('hidden');
+    document.getElementById('newNlfBackdrop').classList.remove('hidden');
+  }
+  function closeNewNlfModal() { document.getElementById('newNlfBackdrop').classList.add('hidden'); }
+
+  document.getElementById('newNlfForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errEl = document.getElementById('nlfFormError');
+    errEl.classList.add('hidden');
+    const btn = document.getElementById('nlfSubmitBtn');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    try {
+      const products = document.getElementById('nlfProducts').value.trim();
+      const skuCount = products.split(',').filter(Boolean).length;
+      const { data: reqId, error: rErr } = await supa.rpc('next_request_id');
+      if (rErr) throw rErr;
+      const payload = {
+        request_id: reqId,
+        retailer: document.getElementById('nlfRetailer').value,
+        market: document.getElementById('nlfMarket').value.trim() || null,
+        products, sku_count: skuCount,
+        reviewer: document.getElementById('nlfReviewer').value.trim() || 'Jenne',
+        notes: document.getElementById('nlfNotes').value.trim() || null,
+        requested_by: user?.email || null,
+        status: 'REQUESTED'
+      };
+      const { data, error } = await supa.from('nlf_drafts').insert(payload).select().single();
+      if (error) throw error;
+      closeNewNlfModal();
+      if (document.getElementById('nlfAutoDraft').checked) {
+        await openDraft(data.request_id, true);
+      } else {
+        await loadAll();
+      }
+    } catch (err) {
+      errEl.textContent = err.message || String(err);
+      errEl.classList.remove('hidden');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Submit request';
+    }
+  });
+
+  async function openDraft(requestId, triggerGenerate = false) {
+    document.getElementById('draftBackdrop').classList.remove('hidden');
+    const row = rowsCache.find(r => r.request_id === requestId) || (await fetchOne(requestId));
+    document.getElementById('draftHeader').textContent = `${row.retailer||''} · ${row.market||''} · ${row.request_id}`;
+    document.getElementById('draftTitle').textContent = row.products || 'Draft';
+    document.getElementById('draftBody').innerHTML = '';
+    document.getElementById('draftActions').innerHTML = '';
+    if (triggerGenerate || row.status === 'REQUESTED') {
+      await generateDraft(requestId);
+    } else {
+      await loadDraftMarkdown(requestId, row);
+    }
+  }
+
+  async function fetchOne(requestId) {
+    const { data } = await supa.from('nlf_drafts').select('*').eq('request_id', requestId).single();
+    return data;
+  }
+
+  async function generateDraft(requestId) {
+    const loading = document.getElementById('draftLoading');
+    const body = document.getElementById('draftBody');
+    loading.classList.remove('hidden');
+    body.innerHTML = '';
+    document.getElementById('draftLoadingMsg').textContent = 'Calling Claude to generate the draft… 10-30 seconds.';
+    try {
+      const { data: { session } } = await supa.auth.getSession();
+      const resp = await fetch(`${SUPABASE_URL}/functions/v1/kaa-draft`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({ request_id: requestId })
+      });
+      const result = await resp.json();
+      if (!resp.ok) {
+        body.innerHTML = `<div class="text-red-700 p-4 bg-red-50 rounded-lg">
+          <strong>Draft generation failed:</strong> ${esc(result.error||'unknown')}
+          ${result.detail ? `<pre class="text-xs mt-2 whitespace-pre-wrap">${esc(result.detail)}</pre>` : ''}
+        </div>`;
+      } else {
+        body.innerHTML = marked.parse(result.markdown||'');
+        await loadAll();
+      }
+      await loadDraftActions(requestId);
+    } finally {
+      loading.classList.add('hidden');
+    }
+  }
+
+  async function loadDraftMarkdown(requestId, row) {
+    const body = document.getElementById('draftBody');
+    body.innerHTML = '<div class="text-stone-500 text-sm">Loading draft…</div>';
+    const { data, error } = await supa.from('draft_content')
+      .select('markdown, version, generated_at')
+      .eq('draft_id', row.id)
+      .order('version', { ascending: false }).limit(1);
+    if (error || !data || data.length === 0) {
+      body.innerHTML = `<div class="text-stone-600 p-6 text-center">
+        <div class="text-sm mb-4">No draft generated yet.</div>
+        <button onclick="generateDraft('${esc(requestId)}')" class="btn-primary">Generate AI draft now</button>
+      </div>`;
+    } else {
+      body.innerHTML = marked.parse(data[0].markdown);
+    }
+    await loadDraftActions(requestId);
+  }
+
+  async function loadDraftActions(requestId) {
+    const row = await fetchOne(requestId);
+    const actions = document.getElementById('draftActions');
+    const status = row.status || 'REQUESTED';
+    const buttons = [];
+    if (['PENDING REVIEW','IN REVIEW'].includes(status)) {
+      buttons.push(`<button onclick="updateStatus('${esc(requestId)}', 'SUBMITTED')" class="btn-primary">Mark as submitted</button>`);
+      buttons.push(`<button onclick="generateDraft('${esc(requestId)}')" class="btn-secondary">Regenerate</button>`);
+    }
+    if (status === 'SUBMITTED') {
+      buttons.push(`<button onclick="updateStatus('${esc(requestId)}', 'APPROVED')" class="btn-primary">Mark approved by buyer</button>`);
+      buttons.push(`<button onclick="updateStatus('${esc(requestId)}', 'REJECTED BY BUYER')" class="btn-secondary">Buyer rejected</button>`);
+    }
+    if (status === 'REQUESTED') {
+      buttons.push(`<button onclick="generateDraft('${esc(requestId)}')" class="btn-primary">Generate AI draft</button>`);
+    }
+    buttons.push(`<button onclick="addCorrection('${esc(requestId)}')" class="btn-ghost">Add correction</button>`);
+    buttons.push(`<button onclick="closeDraftModal()" class="btn-ghost ml-auto">Close</button>`);
+    actions.innerHTML = buttons.join('');
+  }
+
+  async function updateStatus(requestId, newStatus) {
+    const { error } = await supa.from('nlf_drafts').update({ status: newStatus }).eq('request_id', requestId);
+    if (error) { alert('Update failed: ' + error.message); return; }
+    await loadDraftActions(requestId);
+    await loadAll();
+  }
+
+  async function addCorrection(requestId) {
+    const note = prompt('What correction does the agent need to remember for future drafts?\n\nExample: "For Big W, vendor contact is Sarah Wright, not Georgie Robinson."');
+    if (!note) return;
+    const row = await fetchOne(requestId);
+    const dated = `[${new Date().toISOString().slice(0,10)}] ${note}`;
+    const newCorr = row.jenne_corrections ? `${row.jenne_corrections}\n${dated}` : dated;
+    const { error } = await supa.from('nlf_drafts').update({ jenne_corrections: newCorr }).eq('request_id', requestId);
+    if (error) { alert('Save failed: ' + error.message); return; }
+    await loadAll();
+    alert('Correction logged. The agent will apply it on future drafts.');
+  }
+
+  function closeDraftModal() { document.getElementById('draftBackdrop').classList.add('hidden'); }
+
+  boot();
+</script>
+</body>
+</html>
