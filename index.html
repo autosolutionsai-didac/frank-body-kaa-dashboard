@@ -89,7 +89,9 @@
       <div><label class="form-label">Password</label>
         <input id="loginPassword" type="password" class="form-input" required autocomplete="current-password" /></div>
       <div id="loginError" class="hidden text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3"></div>
+      <div id="loginInfo" class="hidden text-sm text-green-800 bg-green-50 border border-green-200 rounded-lg p-3"></div>
       <button type="submit" class="btn-primary w-full">Sign in</button>
+      <button type="button" onclick="sendMagicLink()" class="btn-secondary w-full">Email me a sign-in link instead</button>
     </form>
     <div class="text-xs text-stone-500 mt-6">Need access? Ask Didac to add you in Supabase Auth.</div>
   </div>
@@ -265,13 +267,32 @@
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const errEl = document.getElementById('loginError');
-    errEl.classList.add('hidden');
+    const infoEl = document.getElementById('loginInfo');
+    errEl.classList.add('hidden'); infoEl.classList.add('hidden');
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     const { data, error } = await supa.auth.signInWithPassword({ email, password });
     if (error) { errEl.textContent = error.message; errEl.classList.remove('hidden'); return; }
     showApp(data.user);
   });
+
+  async function sendMagicLink() {
+    const errEl = document.getElementById('loginError');
+    const infoEl = document.getElementById('loginInfo');
+    errEl.classList.add('hidden'); infoEl.classList.add('hidden');
+    const email = document.getElementById('loginEmail').value.trim();
+    if (!email) {
+      errEl.textContent = 'Enter your email first, then click "Email me a sign-in link".';
+      errEl.classList.remove('hidden'); return;
+    }
+    const { error } = await supa.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.origin + window.location.pathname, shouldCreateUser: false }
+    });
+    if (error) { errEl.textContent = error.message; errEl.classList.remove('hidden'); return; }
+    infoEl.innerHTML = '<strong>Check your inbox.</strong> A sign-in link has been sent to ' + email + '. Click it and you\'ll land back here signed in.';
+    infoEl.classList.remove('hidden');
+  }
 
   async function signOut() {
     await supa.auth.signOut();
@@ -569,32 +590,4 @@
       buttons.push(`<button onclick="generateDraft('${esc(requestId)}')" class="btn-primary">Generate AI draft</button>`);
     }
     buttons.push(`<button onclick="addCorrection('${esc(requestId)}')" class="btn-ghost">Add correction</button>`);
-    buttons.push(`<button onclick="closeDraftModal()" class="btn-ghost ml-auto">Close</button>`);
-    actions.innerHTML = buttons.join('');
-  }
-
-  async function updateStatus(requestId, newStatus) {
-    const { error } = await supa.from('nlf_drafts').update({ status: newStatus }).eq('request_id', requestId);
-    if (error) { alert('Update failed: ' + error.message); return; }
-    await loadDraftActions(requestId);
-    await loadAll();
-  }
-
-  async function addCorrection(requestId) {
-    const note = prompt('What correction does the agent need to remember for future drafts?\n\nExample: "For Big W, vendor contact is Sarah Wright, not Georgie Robinson."');
-    if (!note) return;
-    const row = await fetchOne(requestId);
-    const dated = `[${new Date().toISOString().slice(0,10)}] ${note}`;
-    const newCorr = row.jenne_corrections ? `${row.jenne_corrections}\n${dated}` : dated;
-    const { error } = await supa.from('nlf_drafts').update({ jenne_corrections: newCorr }).eq('request_id', requestId);
-    if (error) { alert('Save failed: ' + error.message); return; }
-    await loadAll();
-    alert('Correction logged. The agent will apply it on future drafts.');
-  }
-
-  function closeDraftModal() { document.getElementById('draftBackdrop').classList.add('hidden'); }
-
-  boot();
-</script>
-</body>
-</html>
+    buttons.push(`<button onclick="closeDraftMod
