@@ -590,4 +590,32 @@
       buttons.push(`<button onclick="generateDraft('${esc(requestId)}')" class="btn-primary">Generate AI draft</button>`);
     }
     buttons.push(`<button onclick="addCorrection('${esc(requestId)}')" class="btn-ghost">Add correction</button>`);
-    buttons.push(`<button onclick="closeDraftMod
+    buttons.push(`<button onclick="closeDraftModal()" class="btn-ghost ml-auto">Close</button>`);
+    actions.innerHTML = buttons.join('');
+  }
+
+  async function updateStatus(requestId, newStatus) {
+    const { error } = await supa.from('nlf_drafts').update({ status: newStatus }).eq('request_id', requestId);
+    if (error) { alert('Update failed: ' + error.message); return; }
+    await loadDraftActions(requestId);
+    await loadAll();
+  }
+
+  async function addCorrection(requestId) {
+    const note = prompt('What correction does the agent need to remember for future drafts?\n\nExample: "For Big W, vendor contact is Sarah Wright, not Georgie Robinson."');
+    if (!note) return;
+    const row = await fetchOne(requestId);
+    const dated = `[${new Date().toISOString().slice(0,10)}] ${note}`;
+    const newCorr = row.jenne_corrections ? `${row.jenne_corrections}\n${dated}` : dated;
+    const { error } = await supa.from('nlf_drafts').update({ jenne_corrections: newCorr }).eq('request_id', requestId);
+    if (error) { alert('Save failed: ' + error.message); return; }
+    await loadAll();
+    alert('Correction logged. The agent will apply it on future drafts.');
+  }
+
+  function closeDraftModal() { document.getElementById('draftBackdrop').classList.add('hidden'); }
+
+  boot();
+</script>
+</body>
+</html>
